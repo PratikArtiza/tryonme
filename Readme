@@ -1,3 +1,9 @@
+Try on Me App
+
+The Base: Your stored "Master Face" photo.
+The Overlay: A high-quality digital "color swatch" or a "virtual collar" that is rendered specifically over your neck area using the coordinates found by MediaPipe.
+The Result: It looks like you are wearing a shirt of that exact color. Even though it's a static photo, the WebXR tech ensures the digital collar "sits" correctly on your shoulders.
+
 Spreadsheet link:
 https://docs.google.com/spreadsheets/d/1AwfSdW0sUzK045wrVirPuK_oCsP-PTr67b8q4sG0aQE/edit?gid=0#gid=0
 
