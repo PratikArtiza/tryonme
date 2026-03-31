@@ -1,3 +1,8 @@
+import { VisionEngine } from './modules/vision.js';
+
+// Inside your init() function:
+await VisionEngine.init();
+
 // app.js - The Orchestrator
 import { ProfileStorage } from './modules/storage.js';
 import { ColorEngine } from './modules/colors.js';
