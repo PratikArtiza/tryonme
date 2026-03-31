@@ -65,19 +65,19 @@ class VibeCheckApp {
     async handleShirtScan(event) {
         const file = event.target.files[0];
         const profile = await ProfileStorage.getMasterFace();
-
-        if (!profile) {
-            alert("Please upload a Face Photo first!");
-            return;
-        }
-
-        this.updateStatus("Scanning Shirt Color...");
+    
+        if (!profile) return;
+    
+        this.updateStatus("Merging Vibe...");
         const shirtImg = await this.fileToImage(file);
-        const shirtHex = this.sampleCentralColor(shirtImg);
-
-        // Run the Color Harmony Algorithm
+        const shirtHex = await VisionEngine.extractShirtColor(shirtImg);
+    
+        // 1. Draw the combined image on the main canvas
+        const faceImg = await this.fileToImage(profile.imageData);
+        await VisionEngine.renderOverlay(this.nodes.canvas, this.ctx, faceImg, shirtHex);
+    
+        // 2. Show the verdict
         const result = ColorEngine.analyzeHarmony(profile.skinHex, shirtHex);
-        
         this.showVerdict(result);
     }
 
