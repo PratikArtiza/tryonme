@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>VibeCheck XR | Virtual Try-On</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dexie@latest/dist/dexie.js"></script>
+</head>
+<body>
+    <main id="app">
+        <header>
+            <h1>VibeCheck <span>XR</span></h1>
+        </header>
+
+        <section id="preview-container">
+            <canvas id="output_canvas"></canvas>
+            <div id="verdict-badge" class="hidden">Perfect Match</div>
+        </section>
+
+        <nav class="controls">
+            <label class="btn-primary">
+                Upload Face
+                <input type="file" id="face-upload" accept="image/*" hidden>
+            </label>
+            <label class="btn-secondary">
+                Scan Shirt
+                <input type="file" id="shirt-upload" accept="image/*" hidden>
+            </label>
+        </nav>
+
+        <div id="status-bar">Ready for your first vibe check...</div>
+    </main>
+    <script type="module" src="app.js"></script>
+</body>
+</html>
