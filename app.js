@@ -65,18 +65,17 @@ class VibeCheckApp {
     async handleShirtScan(event) {
         const file = event.target.files[0];
         const profile = await ProfileStorage.getMasterFace();
-    
         if (!profile) return;
     
-        this.updateStatus("Merging Vibe...");
-        const shirtImg = await this.fileToImage(file);
-        const shirtHex = await VisionEngine.extractShirtColor(shirtImg);
+        this.updateStatus("Mapping Texture...");
+        const shirtImg = await this.fileToImage(file); // This is your sweater photo
+        const faceImg = await this.fileToImage(profile.imageData); // This is your selfie
     
-        // 1. Draw the combined image on the main canvas
-        const faceImg = await this.fileToImage(profile.imageData);
-        await VisionEngine.renderOverlay(this.nodes.canvas, this.ctx, faceImg, shirtHex);
-    
-        // 2. Show the verdict
+        // Instead of passing 'shirtHex', we pass the actual 'shirtImg' object
+        await VisionEngine.renderOverlay(this.nodes.canvas, this.ctx, faceImg, shirtImg);
+        
+        // We still calculate the verdict using a sampled color
+        const shirtHex = this.sampleCentralColor(shirtImg);
         const result = ColorEngine.analyzeHarmony(profile.skinHex, shirtHex);
         this.showVerdict(result);
     }
