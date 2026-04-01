@@ -50,7 +50,6 @@ export const VisionEngine = {
     },
     
     async renderOverlay(canvas, ctx, faceImg, shirtColor) {
-        // 1. Match Canvas size to the Image size exactly
         canvas.width = faceImg.width;
         canvas.height = faceImg.height;
     
@@ -59,38 +58,45 @@ export const VisionEngine = {
         if (result.faceLandmarks && result.faceLandmarks.length > 0) {
             const landmarks = result.faceLandmarks[0];
             
-            // 2. Draw the Face Background
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(faceImg, 0, 0);
     
-            // 3. Draw the Shirt Overlay with 'Save' state
             ctx.save(); 
-            
+    
+            // LANDMARK KEY:
+            // 132: Left Jaw | 361: Right Jaw | 152: Bottom of Chin
             const leftJaw = landmarks[132];
-            const chin = landmarks[152];
             const rightJaw = landmarks[361];
+            const chin = landmarks[152];
     
             ctx.beginPath();
-            ctx.moveTo(leftJaw.x * canvas.width, leftJaw.y * canvas.height);
             
-            // Increase vDepth to 0.3 to make it more visible
-            const vDepth = 0.3; 
+            // Start the collar slightly BELOW the jaw joints
+            const offset = 0.05; 
+            ctx.moveTo(leftJaw.x * canvas.width, (leftJaw.y + offset) * canvas.height);
+            
+            // The V-Point: We move it significantly DOWN from the chin
+            // Change 0.25 to 0.40 if you want a deeper V-neck
+            const vDepth = 0.30; 
             ctx.lineTo(chin.x * canvas.width, (chin.y + vDepth) * canvas.height);
-            ctx.lineTo(rightJaw.x * canvas.width, rightJaw.y * canvas.height);
             
+            // Close the triangle at the right jaw
+            ctx.lineTo(rightJaw.x * canvas.width, (rightJaw.y + offset) * canvas.height);
+            
+            // Close the path back to the start
+            ctx.closePath();
+    
+            // Style
             ctx.fillStyle = shirtColor;
-            ctx.globalAlpha = 0.85; // Solid enough to see clearly
+            ctx.globalAlpha = 0.7; // Transparency helps it look like fabric
             ctx.fill();
             
-            // Add a bright border to confirm it's drawing
-            ctx.strokeStyle = "white";
-            ctx.lineWidth = 5;
+            // Add a soft edge so it doesn't look like a sharp triangle
+            ctx.strokeStyle = "rgba(255,255,255,0.2)";
+            ctx.lineWidth = 2;
             ctx.stroke();
     
             ctx.restore();
-            console.log("Overlay Rendered at color:", shirtColor);
-        } else {
-            console.error("AI could not find a face in this photo.");
         }
     }
 };
