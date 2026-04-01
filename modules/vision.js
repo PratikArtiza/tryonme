@@ -49,53 +49,34 @@ export const VisionEngine = {
         return "#7B3F00"; // Placeholder for the extracted dominant shirt hex
     },
     
-    async renderOverlay(canvas, ctx, faceImg, shirtColor) {
+    async renderOverlay(canvas, ctx, faceImg, shirtImg) {
         canvas.width = faceImg.width;
         canvas.height = faceImg.height;
-    
         const result = this.faceLandmarker.detect(faceImg);
-        
+    
         if (result.faceLandmarks && result.faceLandmarks.length > 0) {
             const landmarks = result.faceLandmarks[0];
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(faceImg, 0, 0);
+            ctx.drawImage(faceImg, 0, 0); // Draw your face first
     
-            ctx.save(); 
-    
-            // LANDMARK KEY:
-            // 132: Left Jaw | 361: Right Jaw | 152: Bottom of Chin
-            const leftJaw = landmarks[132];
-            const rightJaw = landmarks[361];
+            ctx.save();
+            // Landmarks for the "V" shape
+            const left = landmarks[132];
+            const right = landmarks[361];
             const chin = landmarks[152];
     
             ctx.beginPath();
-            
-            // Start the collar slightly BELOW the jaw joints
-            const offset = 0.05; 
-            ctx.moveTo(leftJaw.x * canvas.width, (leftJaw.y + offset) * canvas.height);
-            
-            // The V-Point: We move it significantly DOWN from the chin
-            // Change 0.25 to 0.40 if you want a deeper V-neck
-            const vDepth = 0.30; 
-            ctx.lineTo(chin.x * canvas.width, (chin.y + vDepth) * canvas.height);
-            
-            // Close the triangle at the right jaw
-            ctx.lineTo(rightJaw.x * canvas.width, (rightJaw.y + offset) * canvas.height);
-            
-            // Close the path back to the start
+            ctx.moveTo(left.x * canvas.width, left.y * canvas.height);
+            ctx.lineTo(chin.x * canvas.width, (chin.y + 0.4) * canvas.height); // Deeper V
+            ctx.lineTo(right.x * canvas.width, right.y * canvas.height);
             ctx.closePath();
     
-            // Style
-            ctx.fillStyle = shirtColor;
-            ctx.globalAlpha = 0.7; // Transparency helps it look like fabric
-            ctx.fill();
-            
-            // Add a soft edge so it doesn't look like a sharp triangle
-            ctx.strokeStyle = "rgba(255,255,255,0.2)";
-            ctx.lineWidth = 2;
-            ctx.stroke();
+            // This turns the V-shape into a "cookie cutter"
+            ctx.clip(); 
     
+            // Draw the SWEATER inside the V
+            // We offset it so the middle of the sweater photo aligns with your chest
+            ctx.drawImage(shirtImg, 0, chin.y * canvas.height, canvas.width, canvas.height);
+            
             ctx.restore();
         }
     }
