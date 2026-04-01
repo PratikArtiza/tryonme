@@ -48,6 +48,45 @@ export const VisionEngine = {
         // Logic to sample only the pixels within the 'clothing' mask...
         return "#7B3F00"; // Placeholder for the extracted dominant shirt hex
     },
+
+    async extractShirt(shirtElement) {
+        if (!this.imageSegmenter) {
+            console.error("Segmenter not initialized");
+            return shirtElement;
+        }
+
+        // 1. Run AI Segmentation
+        const segmentationResult = await this.imageSegmenter.segment(shirtElement);
+        const mask = segmentationResult.confidenceMasks[0]; 
+
+        // 2. Create a temporary canvas to process the mask
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = shirtElement.width;
+        canvas.height = shirtElement.height;
+
+        // 3. Draw the original shirt
+        ctx.drawImage(shirtElement, 0, 0);
+
+        // 4. The "Magic": Apply the mask to remove the background
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const pixels = imageData.data;
+        const maskData = await mask.getAsFloat32Array();
+
+        for (let i = 0; i < maskData.length; i++) {
+            // If the AI is less than 80% sure this is a 'person/object', make it transparent
+            if (maskData[i] < 0.8) {
+                pixels[i * 4 + 3] = 0; // Set Alpha (Transparency) to 0
+            }
+        }
+
+        ctx.putImageData(imageData, 0, 0);
+        
+        // Return the "Clean" shirt as a new Image object
+        const cleanShirt = new Image();
+        cleanShirt.src = canvas.toDataURL();
+        return new Promise(resolve => cleanShirt.onload = () => resolve(cleanShirt));
+    },
     
     async renderOverlay(canvas, ctx, faceImg, shirtImg) {
         canvas.width = faceImg.width;
