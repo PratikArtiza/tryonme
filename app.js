@@ -67,15 +67,20 @@ class VibeCheckApp {
         const profile = await ProfileStorage.getMasterFace();
         if (!profile) return;
     
-        this.updateStatus("Mapping Texture...");
-        const shirtImg = await this.fileToImage(file); // This is your sweater photo
-        const faceImg = await this.fileToImage(profile.imageData); // This is your selfie
-    
-        // Instead of passing 'shirtHex', we pass the actual 'shirtImg' object
-        await VisionEngine.renderOverlay(this.nodes.canvas, this.ctx, faceImg, shirtImg);
+        this.updateStatus("Removing Background...");
+        const rawShirtImg = await this.fileToImage(file);
         
-        // We still calculate the verdict using a sampled color
-        const shirtHex = this.sampleCentralColor(shirtImg);
+        // NEW STEP: Extract only the sweater
+        const cleanShirtImg = await VisionEngine.extractShirt(rawShirtImg);
+    
+        this.updateStatus("Mapping Texture...");
+        const faceImg = await this.fileToImage(profile.imageData);
+    
+        // Render the CLEAN shirt onto your face
+        await VisionEngine.renderOverlay(this.nodes.canvas, this.ctx, faceImg, cleanShirtImg);
+        
+        // Verdict logic remains the same
+        const shirtHex = this.sampleCentralColor(cleanShirtImg);
         const result = ColorEngine.analyzeHarmony(profile.skinHex, shirtHex);
         this.showVerdict(result);
     }
