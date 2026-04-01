@@ -47,7 +47,7 @@ export const VisionEngine = {
         const mask = result.confidenceMasks[0]; 
         // Logic to sample only the pixels within the 'clothing' mask...
         return "#7B3F00"; // Placeholder for the extracted dominant shirt hex
-    }
+    },
     
     async renderOverlay(canvas, ctx, faceImg, shirtColor) {
         const result = this.faceLandmarker.detect(faceImg);
